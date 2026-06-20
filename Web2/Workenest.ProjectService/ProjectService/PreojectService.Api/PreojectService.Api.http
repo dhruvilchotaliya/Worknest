@@ -1,0 +1,6 @@
+@PreojectService.Api_HostAddress = http://localhost:5131
+
+GET {{PreojectService.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../Worknest.Application/Worknest.Application.csproj" />
+  <Project Path="../Worknest.Domain/Worknest.Domain.csproj" />
+  <Project Path="../Worknest.Infrastructure/Worknest.Infrastructure.csproj" />
+  <Project Path="Worknest.Api.csproj" />
+</Solution>

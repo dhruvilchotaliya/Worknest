@@ -1,0 +1,58 @@
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f7f7fb;
+  color: #1f2937;
+}
+
+.app-nav {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.app-nav a {
+  border-radius: 6px;
+  color: #374151;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.app-nav a:hover {
+  background: #e5e7eb;
+}
+
+.page {
+  max-width: 720px;
+}
+
+.eyebrow {
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.page h1 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.05;
+  margin: 0 0 16px;
+}
+
+.page p {
+  color: #4b5563;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.page code {
+  background: #e5e7eb;
+  border-radius: 4px;
+  color: #111827;
+  font-size: 0.95em;
+  padding: 2px 5px;
+}
