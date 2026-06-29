@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RouterProvider } from 'react-router'
 import { router } from './router'
 import ModalProvider from './components/common/utils/Modal'
+import { ThemeProvider } from './context/ThemeContext'
 import './App.css'
 
 const queryClient = new QueryClient({
@@ -18,9 +19,11 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ModalProvider>
-        <RouterProvider router={router} />
-      </ModalProvider>
+      <ThemeProvider>
+        <ModalProvider>
+          <RouterProvider router={router} />
+        </ModalProvider>
+      </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )

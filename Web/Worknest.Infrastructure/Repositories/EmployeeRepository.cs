@@ -23,6 +23,12 @@ namespace Worknest.Infrastructure.Repositories
                 .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         }
 
+        public async Task<Employee?> GetEmployeeByAzureObjectIdAsync(Guid azureObjectId, CancellationToken cancellationToken)
+        {
+            return await _primaryDbContext.Employees
+                .FirstOrDefaultAsync(e => e.AzureObjectId == azureObjectId, cancellationToken);
+        }
+
         public async Task<Worknest.Application.Common.PaginatedResponse<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
             var query = _primaryDbContext.Employees;

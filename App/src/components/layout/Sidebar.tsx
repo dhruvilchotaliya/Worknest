@@ -153,9 +153,9 @@ const Sidebar = () => {
           "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
           "pointer-events-none group-hover:pointer-events-auto focus-visible:pointer-events-auto",
           "flex h-5 w-5 items-center justify-center rounded-full",
-          "bg-white border border-slate-200 shadow-md cursor-pointer",
-          "text-slate-500 hover:text-slate-800",
-          "hover:bg-slate-50 hover:border-slate-300 hover:scale-110 active:scale-95 transition-all",
+          "bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-md cursor-pointer",
+          "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white",
+          "hover:bg-slate-50 dark:hover:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:scale-110 active:scale-95 transition-all",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
         ].join(" ")}
       >

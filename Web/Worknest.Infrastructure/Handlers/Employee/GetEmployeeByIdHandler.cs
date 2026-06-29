@@ -1,15 +1,20 @@
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using System.Threading;
+using System.Threading.Tasks;
 using Worknest.Application.Exceptions;
 using Worknest.Application.Features.Employee;
 using Worknest.Application.Features.Employee.Queries;
 using Worknest.Application.Repositories;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+
 namespace Worknest.Infrastructure.Handlers.Employee
 {
-    public class GetEmployeeByIdHandler : IRequestHandler<GetEmployeeByIdQuery, EmployeeDto>
+    public class GetEmployeeByIdHandler : IRequestHandler<GetEmployeeByIdQuery, ErrorOr<EmployeeDto>>
     {
         private readonly IEmployeeRepository _employeeRepository;
 
@@ -18,12 +23,12 @@ namespace Worknest.Infrastructure.Handlers.Employee
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<EmployeeDto> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<EmployeeDto>> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
         {
             var employee = await _employeeRepository.GetEmployeeByIdAsync(request.Id, cancellationToken);
             if (employee == null)
             {
-                throw new NotFoundException("Employee", request.Id);
+                return Error.NotFound("Employee.NotFound", $"Employee with ID {request.Id} was not found.");
             }
 
             return EmployeeMapper.ToDto(employee);

@@ -1,24 +1,30 @@
 import { useMemo, useEffect } from "react";
 import { Box, Button as MuiButton } from "@mui/material";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
+import { createTheme, ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
 import { loginRequest } from "../../authConfig";
 import heroImage from "../../assets/login_hero.png";
 import Avatar from "../../components/common/display/Avatar";
 import { Card, CardBody, CardHeader } from "../../components/common/display/Card";
-import { useNavigate } from "react-router";
+
+const lightTheme = createTheme({
+	palette: {
+		mode: "light",
+		primary: {
+			main: "#2563eb",
+		},
+	},
+});
 
 const LoginPage = () => {
 	const { instance, accounts } = useMsal();
 	const isAuthenticated = useIsAuthenticated();
-	const navigate = useNavigate();
 
 	useEffect(() => {
-		console.log("authenticated !!!", isAuthenticated)
+		document.documentElement.classList.remove("dark");
+	}, []);
 
-		if (isAuthenticated) {
-			navigate("/app/home", { replace: true });
-		}
-	}, [isAuthenticated, navigate]);
+
 
 	const handleLogin = () => {
 		instance.loginRedirect(loginRequest).catch((error) => {
@@ -33,7 +39,39 @@ const LoginPage = () => {
 	};
 
 	const handleEnterWorkspace = () => {
-		window.location.assign("/app/home");
+		const account = accounts[0];
+		if (!account) return;
+
+		const checkAndEnter = async () => {
+			try {
+				const tokenResponse = await instance.acquireTokenSilent({
+					...loginRequest,
+					account,
+				});
+
+				const response = await fetch(
+					`${import.meta.env.VITE_API_URL || "https://localhost:7097"}/api/employee/me`,
+					{
+						headers: {
+							Authorization: `Bearer ${tokenResponse.accessToken}`,
+						},
+					}
+				);
+
+				if (response.ok) {
+					window.location.assign("/app/home");
+				} else if (response.status === 404) {
+					window.location.assign("/auth/register");
+				} else {
+					window.location.assign("/app/home");
+				}
+			} catch (error) {
+				console.error("Acquiring token failed:", error);
+				window.location.assign("/app/home");
+			}
+		};
+
+		checkAndEnter();
 	};
 
 	// Helper to extract initials for the user profile avatar
@@ -54,7 +92,8 @@ const LoginPage = () => {
 
 
 	return (
-		<Box className="min-h-screen bg-slate-950 text-slate-950 overflow-hidden">
+		<MuiThemeProvider theme={lightTheme}>
+			<Box className="min-h-screen bg-slate-950 text-slate-950 overflow-hidden">
 			<section className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
 				{/* Left Hero Section with modern glowing gradient background & illustrations */}
 				<div className="relative flex min-h-[360px] flex-col justify-between overflow-hidden bg-slate-950 p-8 lg:min-h-screen lg:p-16">
@@ -235,7 +274,8 @@ const LoginPage = () => {
 					</Card>
 				</div>
 			</section>
-		</Box>
+			</Box>
+		</MuiThemeProvider>
 	);
 };
 

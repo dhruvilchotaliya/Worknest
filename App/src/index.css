@@ -1,8 +1,60 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-background-primary: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+}
+
+.dark {
+  --color-background-primary: #0f172a;
+  --color-border: #1e293b;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+}
+
 html,
 body,
 #root {
   min-height: 100%;
   margin: 0;
 }
+
+/* Smooth targeted transitions instead of heavy wildcard transitions */
+body, 
+#app-main-content, 
+#app-topnavbar, 
+#app-sidebar, 
+.card,
+.MuiPaper-root,
+.MuiButton-root {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Custom DOM Circular Ripple Transition */
+.theme-transition-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999999;
+  overflow: hidden;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

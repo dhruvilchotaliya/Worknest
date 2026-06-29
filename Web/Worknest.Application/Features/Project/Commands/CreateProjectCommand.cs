@@ -1,3 +1,4 @@
+using ErrorOr;
 using MediatR;
 using System;
 
@@ -10,5 +11,5 @@ public record CreateProjectCommand(
     string? ClientName,
     DateOnly? StartedAt,
     DateOnly? EndedAt,
-    Guid? TeamId) : IRequest<ProjectDto>;
+    Guid? TeamId) : IRequest<ErrorOr<ProjectDto>>;
 

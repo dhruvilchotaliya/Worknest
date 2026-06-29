@@ -5,9 +5,12 @@ using Worknest.Application.Features.Project.Commands;
 using Worknest.Application.Repositories;
 using Worknest.Application.Services;
 
+using ErrorOr;
+using Task = System.Threading.Tasks.Task;
+
 namespace Worknest.Infrastructure.Handlers.Project
 {
-    public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand>
+    public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand, ErrorOr<Updated>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProjectRepository _projectRepository;
@@ -18,22 +21,25 @@ namespace Worknest.Infrastructure.Handlers.Project
             _projectRepository = projectRepository;
         }
 
-        public async Task Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Updated>> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
         {
             var project = await _projectRepository.GetProjectByIdAsync(request.Id, cancellationToken);
-            if (project != null)
+            if (project == null)
             {
-                project.Name = request.Name;
-                project.Code = request.Code;
-                project.Description = request.Description;
-                project.ClientName = request.ClientName;
-                project.StartedAt = request.StartedAt;
-                project.EndedAt = request.EndedAt;
-                project.TeamId = request.TeamId;
-                project.IsActive = request.IsActive;
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return Error.NotFound("Project.NotFound", $"Project with ID {request.Id} was not found.");
             }
+
+            project.Name = request.Name;
+            project.Code = request.Code;
+            project.Description = request.Description;
+            project.ClientName = request.ClientName;
+            project.StartedAt = request.StartedAt;
+            project.EndedAt = request.EndedAt;
+            project.TeamId = request.TeamId;
+            project.IsActive = request.IsActive;
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Updated;
         }
     }
 }

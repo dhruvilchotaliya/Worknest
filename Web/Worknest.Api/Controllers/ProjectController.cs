@@ -1,40 +1,32 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Worknest.Api.Controllers.Base;
 using Worknest.Application.Features.Project.Commands;
 using Worknest.Application.Features.Project.Queries;
 
 namespace Worknest.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ProjectController : ControllerBase
+public class ProjectController : BaseController
 {
-    private readonly IMediator _mediator;
-
-    public ProjectController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProjectById(Guid id)
     {
-        var result = await _mediator.Send(new GetProjectByIdQuery(id));
-        return Ok(result);
+        return (await Mediator.Send(new GetProjectByIdQuery(id)))
+            .Match(Ok, Problem);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllProjects([FromQuery] GetAllProjectsQuery query)
     {
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        return (await Mediator.Send(query))
+            .Match(Ok, Problem);
     }
 
     [HttpPost]  
     public async Task<IActionResult> CreateProject([FromBody] CreateProjectCommand command)
     {
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        return (await Mediator.Send(command))
+            .Match(result => Ok(result), Problem);
     }
 
     [HttpPut("{id:guid}")]
@@ -45,35 +37,35 @@ public class ProjectController : ControllerBase
             return BadRequest();
         }
 
-        await _mediator.Send(command);
-        return Ok();
+        return (await Mediator.Send(command))
+            .Match(_ => Ok(), Problem);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProject(Guid id)
     {
-        await _mediator.Send(new DeleteProjectCommand(id));
-        return Ok();
+        return (await Mediator.Send(new DeleteProjectCommand(id)))
+            .Match(_ => NoContent(), Problem);
     }
 
     [HttpGet("{id:guid}/members")]
     public async Task<IActionResult> GetProjectMembers(Guid id)
     {
-        var result = await _mediator.Send(new GetProjectMembersQuery(id));
-        return Ok(result);
+        return (await Mediator.Send(new GetProjectMembersQuery(id)))
+            .Match(Ok, Problem);
     }
 
     [HttpPost("{id:guid}/members")]
     public async Task<IActionResult> AddProjectMembers(Guid id, [FromBody] List<Guid> employeeIds)
     {
-        await _mediator.Send(new AddProjectMembersCommand(id, employeeIds));
-        return Ok();
+        return (await Mediator.Send(new AddProjectMembersCommand(id, employeeIds)))
+            .Match(_ => Ok(), Problem);
     }
 
     [HttpDelete("{id:guid}/members")]
     public async Task<IActionResult> RemoveProjectMembers(Guid id, [FromBody] List<Guid> employeeIds)
     {
-        await _mediator.Send(new RemoveMembersFromProjectCommand(id, employeeIds));
-        return Ok();
+        return (await Mediator.Send(new RemoveMembersFromProjectCommand(id, employeeIds)))
+            .Match(_ => Ok(), Problem);
     }
 }

@@ -6,9 +6,12 @@ using Worknest.Application.Features.Project.Queries;
 using Worknest.Application.Repositories;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+using Task = System.Threading.Tasks.Task;
+
 namespace Worknest.Infrastructure.Handlers.Project
 {
-    public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, ProjectDto>
+    public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, ErrorOr<ProjectDto>>
     {
         private readonly IProjectRepository _projectRepository;
 
@@ -17,10 +20,14 @@ namespace Worknest.Infrastructure.Handlers.Project
             _projectRepository = projectRepository;
         }
 
-        public async Task<ProjectDto> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<ProjectDto>> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
         {
             var project = await _projectRepository.GetProjectByIdAsync(request.Id, cancellationToken);
-            return ProjectMapper.ToDto(project!);
+            if (project == null)
+            {
+                return Error.NotFound("Project.NotFound", $"Project with ID {request.Id} was not found.");
+            }
+            return ProjectMapper.ToDto(project);
         }
     }
 }

@@ -9,9 +9,11 @@ using Worknest.Application.Features.Project.Queries;
 using Worknest.Application.Repositories;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+
 namespace Worknest.Infrastructure.Handlers.Project
 {
-    public class GetAllProjectsQueryHandler : IRequestHandler<GetAllProjectsQuery, PaginatedResponse<ProjectDto>>
+    public class GetAllProjectsQueryHandler : IRequestHandler<GetAllProjectsQuery, ErrorOr<PaginatedResponse<ProjectDto>>>
     {
         private readonly IProjectRepository _projectRepository;
 
@@ -20,7 +22,7 @@ namespace Worknest.Infrastructure.Handlers.Project
             _projectRepository = projectRepository;
         }
 
-        public async Task<PaginatedResponse<ProjectDto>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PaginatedResponse<ProjectDto>>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
         {
             var pagedResult = await _projectRepository.GetAllProjectsAsync(request.PageNumber, request.PageSize, cancellationToken);
             var dtoList = pagedResult.Items.Select(p => ProjectMapper.ToDto(p)).ToList();

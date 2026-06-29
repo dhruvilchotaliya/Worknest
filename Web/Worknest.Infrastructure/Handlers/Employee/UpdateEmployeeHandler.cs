@@ -8,9 +8,11 @@ using Worknest.Application.Repositories;
 using Worknest.Application.Services;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+
 namespace Worknest.Infrastructure.Handlers.Employee
 {
-    public class UpdateEmployeeHandler : IRequestHandler<UpdateEmployeeCommand, EmployeeDto>
+    public class UpdateEmployeeHandler : IRequestHandler<UpdateEmployeeCommand, ErrorOr<EmployeeDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmployeeRepository _employeeRepository;
@@ -21,12 +23,12 @@ namespace Worknest.Infrastructure.Handlers.Employee
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<EmployeeDto> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<EmployeeDto>> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
         {
             var employee = await _employeeRepository.GetEmployeeByIdAsync(request.Id, cancellationToken);
             if (employee == null)
             {
-                throw new NotFoundException("Employee", request.Id);
+                return Error.NotFound("Employee.NotFound", $"Employee with ID {request.Id} was not found.");
             }
 
             employee.Name = !string.IsNullOrWhiteSpace(request.Name) ? request.Name : employee.Name;
@@ -34,6 +36,10 @@ namespace Worknest.Infrastructure.Handlers.Employee
             employee.Email = !string.IsNullOrWhiteSpace(request.Email) ? request.Email : employee.Email;
             employee.TeamId = request.TeamId.HasValue ? request.TeamId : employee.TeamId;
             employee.Position = request.Position.HasValue ? request.Position : employee.Position;
+            employee.PhoneNumber = request.PhoneNumber ?? employee.PhoneNumber;
+            employee.DateOfBirth = request.DateOfBirth ?? employee.DateOfBirth;
+            employee.Bio = request.Bio ?? employee.Bio;
+            employee.WorkModel = request.WorkModel ?? employee.WorkModel;
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

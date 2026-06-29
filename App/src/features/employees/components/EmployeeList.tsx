@@ -1,8 +1,10 @@
+import { useContext } from "react";
 import { Box, InputAdornment, OutlinedInput } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import type { Employee } from "../types/employee";
 import Avatar from "../../../components/common/display/Avatar";
 import Typography from "../../../components/common/display/Typography";
+import ThemeContext from "../../../context/ThemeContext";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,9 +47,10 @@ type EmployeeRowProps = {
 	employee: Employee;
 	isSelected: boolean;
 	onSelect: (employee: Employee) => void;
+	isDark: boolean;
 };
 
-const EmployeeRow = ({ employee, isSelected, onSelect }: EmployeeRowProps) => {
+const EmployeeRow = ({ employee, isSelected, onSelect, isDark }: EmployeeRowProps) => {
 	const initials = `${employee.firstName[0]}${employee.lastName[0]}`.toUpperCase();
 	const colour = avatarColour(employee.fullName);
 
@@ -64,12 +67,26 @@ const EmployeeRow = ({ employee, isSelected, onSelect }: EmployeeRowProps) => {
 				py: 1.25,
 				cursor: "pointer",
 				borderRadius: "8px",
-				bgcolor: isSelected ? "rgba(79, 110, 247, 0.08)" : "transparent",
+				bgcolor: isSelected
+					? isDark
+						? "rgba(79, 110, 247, 0.15)"
+						: "rgba(79, 110, 247, 0.08)"
+					: "transparent",
 				border: "1px solid",
-				borderColor: isSelected ? "rgba(79, 110, 247, 0.25)" : "transparent",
+				borderColor: isSelected
+					? isDark
+						? "rgba(79, 110, 247, 0.4)"
+						: "rgba(79, 110, 247, 0.25)"
+					: "transparent",
 				transition: "background-color 0.15s ease, border-color 0.15s ease",
 				"&:hover": {
-					bgcolor: isSelected ? "rgba(79, 110, 247, 0.1)" : "rgba(0,0,0,0.04)",
+					bgcolor: isSelected
+						? isDark
+							? "rgba(79, 110, 247, 0.2)"
+							: "rgba(79, 110, 247, 0.1)"
+						: isDark
+							? "rgba(255,255,255,0.05)"
+							: "rgba(0,0,0,0.04)",
 				},
 				listStyle: "none",
 			}}
@@ -89,7 +106,7 @@ const EmployeeRow = ({ employee, isSelected, onSelect }: EmployeeRowProps) => {
 					style={{
 						fontWeight: 600,
 						fontSize: "0.8125rem",
-						color: "#1e293b",
+						color: isDark ? "#e2e8f0" : "#1e293b",
 						whiteSpace: "nowrap",
 						overflow: "hidden",
 						textOverflow: "ellipsis",
@@ -101,7 +118,7 @@ const EmployeeRow = ({ employee, isSelected, onSelect }: EmployeeRowProps) => {
 					component="caption"
 					testId={`employee-position-${employee.id}`}
 					style={{
-						color: "#64748b",
+						color: isDark ? "#94a3b8" : "#64748b",
 						fontSize: "0.75rem",
 						whiteSpace: "nowrap",
 						overflow: "hidden",
@@ -120,14 +137,15 @@ const EmployeeRow = ({ employee, isSelected, onSelect }: EmployeeRowProps) => {
 					px: 1,
 					py: 0.25,
 					borderRadius: "4px",
-					bgcolor: "rgba(79, 110, 247, 0.07)",
-					border: "1px solid rgba(79, 110, 247, 0.15)",
+					bgcolor: isDark ? "rgba(79, 110, 247, 0.15)" : "rgba(79, 110, 247, 0.07)",
+					border: "1px solid",
+					borderColor: isDark ? "rgba(79, 110, 247, 0.3)" : "rgba(79, 110, 247, 0.15)",
 				}}
 			>
 				<Typography
 					component="caption"
 					testId={`employee-dept-${employee.id}`}
-					style={{ color: "#4f6ef7", fontSize: "0.6875rem", fontWeight: 600 }}
+					style={{ color: isDark ? "#818cf8" : "#4f6ef7", fontSize: "0.6875rem", fontWeight: 600 }}
 				>
 					{employee.department}
 				</Typography>
@@ -147,6 +165,8 @@ const EmployeeList = ({
 	onSelect,
 	onSearchChange,
 }: EmployeeListProps) => {
+	const { isDark } = useContext(ThemeContext);
+
 	return (
 		<Box
 			sx={{
@@ -167,18 +187,19 @@ const EmployeeList = ({
 					inputProps={{ "data-testid": "employee-search-input" }}
 					startAdornment={
 						<InputAdornment position="start">
-							<SearchIcon sx={{ fontSize: 18, color: "#94a3b8" }} />
+							<SearchIcon sx={{ fontSize: 18, color: isDark ? "#64748b" : "#94a3b8" }} />
 						</InputAdornment>
 					}
 					sx={{
 						borderRadius: "8px",
-						bgcolor: "#fff",
+						bgcolor: isDark ? "#1e293b" : "#f8fafc",
 						fontSize: "0.8125rem",
+						input: { color: isDark ? "#e2e8f0" : "#0f172a" },
 						"& .MuiOutlinedInput-notchedOutline": {
-							borderColor: "#e2e8f0",
+							borderColor: isDark ? "#334155" : "#e2e8f0",
 						},
 						"&:hover .MuiOutlinedInput-notchedOutline": {
-							borderColor: "#cbd5e1",
+							borderColor: isDark ? "#475569" : "#cbd5e1",
 						},
 						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 							borderColor: "#4f6ef7",
@@ -217,14 +238,14 @@ const EmployeeList = ({
 						<Typography
 							component="body1"
 							testId="employee-list-empty-msg"
-							style={{ color: "#94a3b8", fontSize: "0.875rem" }}
+							style={{ color: isDark ? "#475569" : "#94a3b8", fontSize: "0.875rem" }}
 						>
 							No employees found
 						</Typography>
 						<Typography
 							component="caption"
 							testId="employee-list-empty-sub"
-							style={{ color: "#cbd5e1", fontSize: "0.75rem" }}
+							style={{ color: isDark ? "#334155" : "#cbd5e1", fontSize: "0.75rem" }}
 						>
 							Try a different search term
 						</Typography>
@@ -236,6 +257,7 @@ const EmployeeList = ({
 							employee={emp}
 							isSelected={emp.id === selectedId}
 							onSelect={onSelect}
+							isDark={isDark}
 						/>
 					))
 				)}

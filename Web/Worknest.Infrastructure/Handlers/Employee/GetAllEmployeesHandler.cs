@@ -9,9 +9,11 @@ using Worknest.Application.Features.Employee.Queries;
 using Worknest.Application.Repositories;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+
 namespace Worknest.Infrastructure.Handlers.Employee
 {
-    public class GetAllEmployeesHandler : IRequestHandler<GetAllEmployeesQuery, PaginatedResponse<EmployeeDto>>
+    public class GetAllEmployeesHandler : IRequestHandler<GetAllEmployeesQuery, ErrorOr<PaginatedResponse<EmployeeDto>>>
     {
         private readonly IEmployeeRepository _employeeRepository;
 
@@ -20,7 +22,7 @@ namespace Worknest.Infrastructure.Handlers.Employee
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<PaginatedResponse<EmployeeDto>> Handle(GetAllEmployeesQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PaginatedResponse<EmployeeDto>>> Handle(GetAllEmployeesQuery request, CancellationToken cancellationToken)
         {
             var pagedResult = await _employeeRepository.GetAllEmployeesAsync(request.PageNumber, request.PageSize, cancellationToken);
             

@@ -20,8 +20,11 @@ namespace Worknest.Infrastructure
                     b => b.MigrationsAssembly(typeof(PrimaryDbContext).Assembly.FullName)));
 
             // Register Repositories and Services
+            services.AddHttpContextAccessor();
+            services.AddScoped<Worknest.Application.Services.IContextService, Worknest.Infrastructure.Services.ContextService>();
             services.AddScoped<Worknest.Application.Repositories.IProjectRepository, Worknest.Infrastructure.Repositories.ProjectRepository>();
             services.AddScoped<Worknest.Application.Repositories.IEmployeeRepository, Worknest.Infrastructure.Repositories.EmployeeRepository>();
+            services.AddScoped<Worknest.Application.Repositories.IProjectTaskRepository, Worknest.Infrastructure.Repositories.ProjectTaskRepository>();
             services.AddScoped<Worknest.Application.Services.IUnitOfWork, Worknest.Infrastructure.Services.UnitOfWorkService>();
 
             // Register MediatR handlers inside Infrastructure
@@ -29,6 +32,45 @@ namespace Worknest.Infrastructure
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(configuration.GetSection(SettingConstants.WebApiAppRegistration));
+
+            // DEBUG: Add event handlers via PostConfigure to chain with MI Web's handlers
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                var existingEvents = options.Events ?? new JwtBearerEvents();
+
+                var originalOnAuthFailed = existingEvents.OnAuthenticationFailed;
+                existingEvents.OnAuthenticationFailed = async context =>
+                {
+                    if (originalOnAuthFailed != null) await originalOnAuthFailed(context);
+                    Console.WriteLine("========== AUTH FAILED ==========");
+                    Console.WriteLine($"Exception Type: {context.Exception.GetType().Name}");
+                    Console.WriteLine($"Exception Message: {context.Exception.Message}");
+                    Console.WriteLine("=================================");
+                };
+
+                var originalOnValidated = existingEvents.OnTokenValidated;
+                existingEvents.OnTokenValidated = async context =>
+                {
+                    if (originalOnValidated != null) await originalOnValidated(context);
+                    Console.WriteLine("========== TOKEN VALIDATED ==========");
+                    foreach (var claim in context.Principal?.Claims ?? [])
+                        Console.WriteLine($"  {claim.Type}: {claim.Value}");
+                    Console.WriteLine("=====================================");
+                };
+
+                var originalOnChallenge = existingEvents.OnChallenge;
+                existingEvents.OnChallenge = async context =>
+                {
+                    if (originalOnChallenge != null) await originalOnChallenge(context);
+                    Console.WriteLine("========== AUTH CHALLENGE ==========");
+                    Console.WriteLine($"Error: {context.Error}");
+                    Console.WriteLine($"Error Description: {context.ErrorDescription}");
+                    Console.WriteLine($"Auth Failure: {context.AuthenticateFailure?.Message}");
+                    Console.WriteLine("====================================");
+                };
+
+                options.Events = existingEvents;
+            });
 
             return services;
         }

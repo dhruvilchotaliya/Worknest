@@ -9,9 +9,11 @@ using Worknest.Application.Services;
 using Worknest.Application.Repositories;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+
 namespace Worknest.Infrastructure.Handlers.Employee
 {
-    public class CreateEmployeeHandler : IRequestHandler<CreateEmployeeCommand, EmployeeDto>
+    public class CreateEmployeeHandler : IRequestHandler<CreateEmployeeCommand, ErrorOr<EmployeeDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmployeeRepository _employeeRepository;
@@ -22,7 +24,7 @@ namespace Worknest.Infrastructure.Handlers.Employee
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<EmployeeDto> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<EmployeeDto>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
         {
             var employee = new Worknest.Domain.Entities.Employee.Employee
             {

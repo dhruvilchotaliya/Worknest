@@ -1,3 +1,4 @@
+using ErrorOr;
 using MediatR;
 using System;
 using Worknest.Domain.Entities.Employee;
@@ -11,4 +12,8 @@ public record UpdateEmployeeCommand(
     string? Email,
     EmployeePosition? Position,
     DateTime? JoinedAt,
-    Guid? TeamId) : IRequest<EmployeeDto>;
+    Guid? TeamId,
+    string? PhoneNumber,
+    DateTime? DateOfBirth,
+    string? Bio,
+    WorkModel? WorkModel) : IRequest<ErrorOr<EmployeeDto>>;
