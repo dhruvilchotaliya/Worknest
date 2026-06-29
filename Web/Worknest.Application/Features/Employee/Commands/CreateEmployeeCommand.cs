@@ -1,3 +1,4 @@
+using ErrorOr;
 using MediatR;
 using System;
 using System.Net;
@@ -10,4 +11,4 @@ public record CreateEmployeeCommand(
     string Surname,
     string Email,
     EmployeePosition Position,
-    Guid? TeamId) : IRequest<EmployeeDto>;
+    Guid? TeamId) : IRequest<ErrorOr<EmployeeDto>>;

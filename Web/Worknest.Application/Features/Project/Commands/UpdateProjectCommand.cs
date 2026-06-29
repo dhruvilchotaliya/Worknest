@@ -1,3 +1,4 @@
+using ErrorOr;
 using MediatR;
 using System;
 
@@ -12,5 +13,5 @@ public record UpdateProjectCommand(
     DateOnly? StartedAt,
     DateOnly? EndedAt,
     bool IsActive,
-    Guid? TeamId) : IRequest;
+    Guid? TeamId) : IRequest<ErrorOr<Updated>>;
 

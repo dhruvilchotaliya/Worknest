@@ -8,9 +8,12 @@ using Worknest.Application.Repositories;
 using Worknest.Application.Services;
 using Worknest.Infrastructure.Mappers;
 
+using ErrorOr;
+using Task = System.Threading.Tasks.Task;
+
 namespace Worknest.Infrastructure.Handlers.Project
 {
-    public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, ProjectDto>
+    public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, ErrorOr<ProjectDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProjectRepository _projectRepository;
@@ -21,7 +24,7 @@ namespace Worknest.Infrastructure.Handlers.Project
             _projectRepository = projectRepository;
         }
 
-        public async Task<ProjectDto> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<ProjectDto>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
         {
             var project = new Worknest.Domain.Entities.Project.Project
             {

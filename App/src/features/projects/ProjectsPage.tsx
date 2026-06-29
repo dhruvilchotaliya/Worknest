@@ -49,7 +49,7 @@ export const ProjectsPage = () => {
 	const summaryText = `${activeCount} active across ${categoriesCount} categories`;
 
 	return (
-		<Box component="section" className="p-6 max-w-screen-2xl mx-auto w-full flex flex-col bg-slate-50 min-h-screen">
+		<Box component="section" className="p-6 max-w-screen-2xl mx-auto w-full flex flex-col bg-slate-100 dark:bg-slate-950 min-h-screen">
 			{/* Simple modern header directly on background */}
 			<Box className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-6">
 				<Box className="flex flex-col">
@@ -63,7 +63,7 @@ export const ProjectsPage = () => {
 					<Typography
 						component="h3"
 						testId="projects-heading"
-						className="font-bold text-slate-950 leading-tight"
+						className="font-bold text-slate-950 dark:text-white leading-tight"
 					>
 						Projects
 					</Typography>

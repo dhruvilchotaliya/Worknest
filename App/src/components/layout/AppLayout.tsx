@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import TopNavbar from "./TopNavbar";
 import Sidebar from "./Sidebar";
 
@@ -14,8 +14,10 @@ import Sidebar from "./Sidebar";
  *   └───────────┴─────────────────────────┘
  */
 export function AppLayout() {
+	const location = useLocation();
+
 	return (
-		<div className="flex h-screen w-screen overflow-hidden bg-slate-50">
+		<div className="flex h-screen w-screen overflow-hidden bg-slate-100 dark:bg-slate-950">
 			{/* Left sidebar: full height of the viewport */}
 			<Sidebar />
 
@@ -28,9 +30,11 @@ export function AppLayout() {
 				<main
 					id="app-main-content"
 					aria-label="Page content"
-					className="flex-1 overflow-y-auto"
+					className="flex-1 h-full overflow-y-auto relative flex flex-col"
 				>
-					<Outlet />
+					<div key={location.pathname} className="animate-fade-in-up w-full min-h-full flex flex-col flex-1">
+						<Outlet />
+					</div>
 				</main>
 			</div>
 		</div>

@@ -94,10 +94,10 @@ const UserProfileMenu = () => {
 					"flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 cursor-pointer",
 					"border border-transparent",
 					"transition-all duration-200",
-					"hover:bg-slate-100 hover:border-slate-200",
-					"active:bg-slate-200",
+					"hover:bg-slate-100 hover:border-slate-200 dark:hover:bg-slate-800/60 dark:hover:border-slate-700",
+					"active:bg-slate-200 dark:active:bg-slate-700",
 					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-					Boolean(anchorEl) ? "bg-slate-100 border-slate-200" : "",
+					Boolean(anchorEl) ? "bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700" : "",
 				].join(" ")}
 			>
 				<Avatar
@@ -107,7 +107,7 @@ const UserProfileMenu = () => {
 					sx={{ bgcolor: "#4f46e5", fontSize: "0.65rem", fontWeight: 700 }}
 				/>
 				<span className="hidden sm:flex flex-col items-start leading-none">
-					<span className="text-sm font-semibold text-slate-800 max-w-[120px] truncate">
+					<span className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[120px] truncate">
 						{displayName}
 					</span>
 					<span className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-wide">

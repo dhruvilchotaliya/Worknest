@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useContext } from "react";
 import { Box } from "@mui/material";
-import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import Typography from "../../components/common/display/Typography";
 import Button from "../../components/common/buttons/Button";
 import WorknestSidebar from "../../components/common/layout/WorknestSidebar";
+import ThemeContext from "../../context/ThemeContext";
 
 import EmployeeList from "./components/EmployeeList";
 import EmployeeDetails from "./components/EmployeeDetails";
@@ -17,6 +17,8 @@ import type { Employee, NewEmployeeFormData } from "./types/employee";
 // ---------------------------------------------------------------------------
 
 export const EmployeesPage = () => {
+	const { isDark } = useContext(ThemeContext);
+
 	// ── State ──────────────────────────────────────────────────────────────
 	const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
 	const [selectedEmployee, setSelectedEmployee] = useState<Employee>(mockEmployees[0]);
@@ -72,7 +74,8 @@ export const EmployeesPage = () => {
 				height: "100%",
 				p: 3,
 				gap: 0,
-				bgcolor: "#f8fafc",
+				bgcolor: isDark ? "#020617" : "#f1f5f9",
+				transition: "background-color 0.3s ease",
 			}}
 			data-testid="employees-page"
 		>
@@ -95,7 +98,7 @@ export const EmployeesPage = () => {
 							fontSize: "0.625rem",
 							fontWeight: 700,
 							letterSpacing: "0.1em",
-							color: "#94a3b8",
+							color: isDark ? "#64748b" : "#94a3b8",
 							textTransform: "uppercase",
 							display: "block",
 						}}
@@ -105,7 +108,7 @@ export const EmployeesPage = () => {
 					<Typography
 						component="h3"
 						testId="employees-heading"
-						style={{ fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}
+						style={{ fontWeight: 700, color: isDark ? "#f1f5f9" : "#0f172a", lineHeight: 1.2 }}
 					>
 						Employees
 					</Typography>
@@ -137,14 +140,16 @@ export const EmployeesPage = () => {
 						flexShrink: 0,
 						display: "flex",
 						flexDirection: "column",
-						bgcolor: "#fff",
-						border: "1px solid #e2e8f0",
+						bgcolor: isDark ? "#0f172a" : "#fff",
+						border: "1px solid",
+						borderColor: isDark ? "#1e293b" : "#e2e8f0",
 						borderRadius: "12px",
 						p: 1.5,
 						minHeight: { xs: 360, md: 0 },
 						// Constrain height so the list itself scrolls
 						maxHeight: { xs: 420, md: "none" },
 						overflow: "hidden",
+						transition: "background-color 0.3s ease, border-color 0.3s ease",
 					}}
 					data-testid="employee-list-panel"
 				>

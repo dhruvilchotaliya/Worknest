@@ -1,20 +1,38 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Web;
+using Worknest.Api.Controllers.Base;
 using Worknest.Application.Features.Employee;
 using Worknest.Application.Features.Employee.Commands;
 using Worknest.Application.Features.Employee.Queries;
+using Worknest.Application.Services;
+using Worknest.Domain.Entities.Employee;
+using System;
+using System.Threading.Tasks;
 
 namespace Worknest.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class EmployeeController : ControllerBase
+public class EmployeeController : BaseController
 {
-    private readonly IMediator _mediator;
-
-    public EmployeeController(IMediator mediator)
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register([FromBody] RegisterEmployeeRequest request)
     {
-        _mediator = mediator;
+        var command = new RegisterMyProfileCommand(
+            request.Surname,
+            request.Position,
+            request.TeamId,
+            request.ExperienceInYears,
+            request.PhoneNumber,
+            request.DateOfBirth,
+            request.Bio,
+            request.WorkModel
+        );
+
+        return (await Mediator.Send(command))
+            .Match(result => Ok(result), Problem);
     }
 
     [HttpGet("{id:guid}")]
@@ -23,8 +41,8 @@ public class EmployeeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _mediator.Send(new GetEmployeeByIdQuery(id));
-        return Ok(result);
+        return (await Mediator.Send(new GetEmployeeByIdQuery(id)))
+            .Match(Ok, Problem);
     }
 
     [HttpGet]
@@ -33,15 +51,15 @@ public class EmployeeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllEmployeesQuery query)
     {
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        return (await Mediator.Send(query))
+            .Match(Ok, Problem);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateEmployeeCommand command)
     {
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        return (await Mediator.Send(command))
+            .Match(result => Ok(result), Problem);
     }
 
     [HttpPut("{id:guid}")]
@@ -52,14 +70,24 @@ public class EmployeeController : ControllerBase
             return BadRequest();
         }
         
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        return (await Mediator.Send(command))
+            .Match(Ok, Problem);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _mediator.Send(new DeleteEmployeeCommand(id));
-        return Ok(result);
+        return (await Mediator.Send(new DeleteEmployeeCommand(id)))
+            .Match(_ => NoContent(), Problem);
     }
 }
+
+public record RegisterEmployeeRequest(
+    string Surname,
+    EmployeePosition Position,
+    Guid? TeamId,
+    decimal? ExperienceInYears,
+    string? PhoneNumber,
+    DateTime? DateOfBirth,
+    string? Bio,
+    WorkModel? WorkModel);

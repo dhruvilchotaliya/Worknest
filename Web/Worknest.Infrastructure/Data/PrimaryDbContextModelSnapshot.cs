@@ -22,17 +22,45 @@ namespace Worknest.Infrastructure.Data
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("EmployeeTechSkill", b =>
+                {
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TechnicalSkillsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EmployeeId", "TechnicalSkillsId");
+
+                    b.HasIndex("TechnicalSkillsId");
+
+                    b.ToTable("EmployeeTechSkill");
+                });
+
             modelBuilder.Entity("Worknest.Domain.Entities.Employee.Employee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AzureObjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("ExperienceInYears")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
@@ -45,6 +73,10 @@ namespace Worknest.Infrastructure.Data
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<int?>("Position")
                         .HasColumnType("integer");
 
@@ -56,11 +88,28 @@ namespace Worknest.Infrastructure.Data
                     b.Property<Guid?>("TeamId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("WorkModel")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TeamId");
 
                     b.ToTable("Employees", (string)null);
+                });
+
+            modelBuilder.Entity("Worknest.Domain.Entities.Employee.TechSkill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TechSkills");
                 });
 
             modelBuilder.Entity("Worknest.Domain.Entities.Project.Project", b =>
@@ -257,6 +306,21 @@ namespace Worknest.Infrastructure.Data
                         .IsUnique();
 
                     b.ToTable("Teams", (string)null);
+                });
+
+            modelBuilder.Entity("EmployeeTechSkill", b =>
+                {
+                    b.HasOne("Worknest.Domain.Entities.Employee.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Worknest.Domain.Entities.Employee.TechSkill", null)
+                        .WithMany()
+                        .HasForeignKey("TechnicalSkillsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Worknest.Domain.Entities.Employee.Employee", b =>

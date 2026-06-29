@@ -1,39 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext } from "react";
 import { useNavigate } from "react-router";
 import IconButton from "../common/buttons/IconButton";
-import Typography from "../common/display/Typography";
 import UserProfileMenu from "../UserProfileMenu";
+import ThemeContext from "../../context/ThemeContext";
+import Tooltip from "@mui/material/Tooltip";
 
-// ---------------------------------------------------------------------------
-// WorkNest brand logo mark
-// ---------------------------------------------------------------------------
-
-const WorkNestLogo = () => (
-	<div className="flex items-center gap-2.5 select-none">
-		{/* Logo mark: rounded square with stylised "W" */}
-		<div
-			aria-hidden="true"
-			className="flex h-8 w-8 items-center justify-center rounded-lg shadow-md"
-			style={{
-				background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-				boxShadow: "0 4px 12px rgba(79,70,229,0.35)",
-			}}
-		>
-			<span className="text-[13px] font-black text-white tracking-wider leading-none">
-				W
-			</span>
-		</div>
-
-		{/* Brand name */}
-		<Typography
-			component="h6"
-			testId="topnav-brand-name"
-			className="font-bold text-slate-900 tracking-tight text-base leading-none"
-		>
-			WorkNest
-		</Typography>
-	</div>
-);
+import { SunMoonIcon } from "../../icons/SunMoonIcon";
 
 // ---------------------------------------------------------------------------
 // TopNavbar
@@ -44,6 +16,7 @@ const UNREAD_NOTIFICATIONS = 3;
 
 const TopNavbar = () => {
 	const navigate = useNavigate();
+	const { isDark, toggleTheme } = useContext(ThemeContext);
 
 	const handleNotificationsClick = useCallback(() => {
 		navigate("/app/notifications");
@@ -57,13 +30,31 @@ const TopNavbar = () => {
 				"w-full z-30",
 				"flex items-center justify-end",
 				"h-14 px-4 sm:px-6",
-				"bg-white/90 backdrop-blur-md",
-				"border-b border-slate-200/80",
+				"bg-white/90 dark:bg-slate-900/90 backdrop-blur-md",
+				"border-b border-slate-200/80 dark:border-slate-800/80",
 				"shadow-[0_1px_8px_rgba(0,0,0,0.04)]",
 			].join(" ")}
 		>
 			{/* Right — actions */}
 			<div className="flex items-center gap-1.5">
+				{/* Dark/Light Theme Toggle */}
+				<Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"} arrow>
+					<button
+						id="topnav-theme-toggle-btn"
+						data-testid="topnav-theme-toggle-btn"
+						type="button"
+						onClick={(e) => toggleTheme(e)}
+						className={[
+							"relative flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-300 cursor-pointer focus:outline-none",
+							isDark
+								? "bg-indigo-950/70 text-amber-400 border border-indigo-500/30 shadow-[inset_0_3px_5px_rgba(0,0,0,0.7),0_0_8px_rgba(99,102,241,0.2)] scale-95 translate-y-[1px]"
+								: "bg-slate-50 text-slate-500 border border-slate-200 shadow-sm hover:bg-slate-100 hover:text-slate-800"
+						].join(" ")}
+					>
+						<SunMoonIcon className="h-5 w-5" />
+					</button>
+				</Tooltip>
+
 				{/* Notification icon with badge */}
 				<IconButton
 					id="topnav-notifications-btn"
@@ -80,7 +71,7 @@ const TopNavbar = () => {
 				{/* Thin vertical divider */}
 				<span
 					aria-hidden="true"
-					className="mx-1 h-6 w-px bg-slate-200 rounded-full"
+					className="mx-1 h-6 w-px bg-slate-200 dark:bg-slate-800 rounded-full"
 				/>
 
 				{/* User profile dropdown */}

@@ -12,5 +12,9 @@ namespace Worknest.Application.Features.Employee
         public EmployeePosition? Position { get; set; }
         public Guid? TeamId { get; set; }
         public DateTime JoinedAt { get; set; }
+        public string? PhoneNumber { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? Bio { get; set; }
+        public WorkModel? WorkModel { get; set; }
     }
 }

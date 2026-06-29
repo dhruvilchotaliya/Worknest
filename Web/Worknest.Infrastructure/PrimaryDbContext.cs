@@ -18,6 +18,7 @@ namespace Worknest.Infrastructure
         public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
         public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<ProjectTask> ProjectTasks => Set<ProjectTask>();
+        public DbSet<TechSkill> TechSkills => Set<TechSkill>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +35,15 @@ namespace Worknest.Infrastructure
                 entity.Property(e => e.Surname)
                     .IsRequired()
                     .HasMaxLength(100);
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(20);
+                entity.Property(e => e.Bio)
+                    .HasMaxLength(1000);
+                entity.Property(e => e.WorkModel)
+                    .HasConversion<int>();
+
+                entity.HasMany(e => e.TechnicalSkills)
+                    .WithMany();
 
                 // Team relationship
                 entity.HasOne(e => e.Team)

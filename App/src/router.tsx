@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import LoginPage from "./features/auth/LoginPage";
+import RegisterPage from "./features/auth/RegisterPage";
 import { AppLayout } from "./components/layout/AppLayout";
 
 // Pages
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
 	{
 		path: "/auth/login",
 		element: <LoginPage />,
+	},
+	{
+		path: "/auth/register",
+		element: <RegisterPage />,
 	},
 
 	// App shell — all protected pages share AppLayout
