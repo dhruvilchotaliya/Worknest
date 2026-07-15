@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,18 +6,18 @@ namespace Worknest.Application.Common.Constants
 {
     public static class PolicyConstants
     {
-        public readonly static string RequireAdmin = "RequireAdmin";
+        public const string RequireAdmin = "RequireAdmin";
 
-        public readonly static string RequireProjectManager = "RequireProjectManager";
+        public const string RequireProjectManager = "RequireProjectManager";
 
-        public readonly static string RequireTeamLeader = "RequireTeamLeader";
+        public const string RequireTeamLeader = "RequireTeamLeader";
 
-        public readonly static string RequireDeveloper = "RequireDeveloper";
+        public const string RequireDeveloper = "RequireDeveloper";
 
-        public readonly static string RequireFellowDeveloper = "RequireFellowDeveloper";
+        public const string RequireFellowDeveloper = "RequireFellowDeveloper";
 
-        public readonly static string RequireWorkContributor = "RequireWorkContributor";
+        public const string RequireWorkContributor = "RequireWorkContributor";
 
-        public readonly static string RequireAnyUser = "RequireAnyUser";
+        public const string RequireAnyUser = "RequireAnyUser";
     }
 }

@@ -10,5 +10,7 @@ namespace Worknest.Application.Features.Employee
         public string? Email { get; set; }
         public string? Name { get; set; }
         public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
+        public bool IsGuestUser { get; set; }
+        public bool RequiresTenantSwitch { get; set; }
     }
 }

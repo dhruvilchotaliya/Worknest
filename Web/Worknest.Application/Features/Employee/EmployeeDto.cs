@@ -16,5 +16,7 @@ namespace Worknest.Application.Features.Employee
         public DateTime? DateOfBirth { get; set; }
         public string? Bio { get; set; }
         public WorkModel? WorkModel { get; set; }
+        public string? AzureEmail { get; set; }
+        public bool IsGuestUser { get; set; }
     }
 }

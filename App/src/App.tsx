@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router'
 import { router } from './router'
 import ModalProvider from './components/common/utils/Modal'
 import { ThemeProvider } from './context/ThemeContext'
+import { AuthenticationContextProvider } from './context/AuthenticationContext'
 import './App.css'
 
 const queryClient = new QueryClient({
@@ -20,9 +21,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <ModalProvider>
-          <RouterProvider router={router} />
-        </ModalProvider>
+        <AuthenticationContextProvider>
+          <ModalProvider>
+            <RouterProvider router={router} />
+          </ModalProvider>
+        </AuthenticationContextProvider>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

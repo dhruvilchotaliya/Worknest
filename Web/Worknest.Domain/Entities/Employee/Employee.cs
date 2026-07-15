@@ -14,6 +14,8 @@ namespace Worknest.Domain.Entities.Employee
         public Team.Team? Team { get; set; }
         public Team.Team? LedTeam { get; set; }
         public Guid? AzureObjectId { get; set; }
+        public string? AzureEmail { get; set; }
+        public bool IsGuestUser { get; set; }
         public decimal? ExperienceInYears { get; set; }
         public List<TechSkill>? TechnicalSkills { get; set; }
         public string? PhoneNumber { get; set; }

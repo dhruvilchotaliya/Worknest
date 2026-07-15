@@ -46,6 +46,12 @@ namespace Worknest.Infrastructure.Repositories
             await _primaryDbContext.Employees.AddAsync(employee, cancellationToken);
         }
 
+        public async Task<Employee?> GetEmployeeByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            return await _primaryDbContext.Employees
+                .FirstOrDefaultAsync(e => e.Email == email, cancellationToken);
+        }
+
         public async Task DeleteEmployeeAsync(Guid id, CancellationToken cancellationToken)
         {
             var existingEmployee = await _primaryDbContext.Employees
