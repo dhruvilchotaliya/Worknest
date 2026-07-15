@@ -1,10 +1,12 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Worknest.Api.Controllers.Base;
+using Worknest.Application.Common.Constants;
 using Worknest.Application.Features.Tasks;
 using Worknest.Application.Features.Tasks.Commands;
 using Worknest.Application.Features.Tasks.Queries;
@@ -15,6 +17,7 @@ namespace Worknest.Api.Controllers
     public class TaskController : BaseController
     {
         [HttpPost]
+        [Authorize(Policy = PolicyConstants.RequireTeamLeader)]
         [ProducesResponseType(typeof(ProjectTaskDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
         {
@@ -23,6 +26,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = PolicyConstants.RequireTeamLeader)]
         [ProducesResponseType(typeof(ProjectTaskDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskCommand command)
@@ -32,6 +36,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpPut("{id:guid}/assign")]
+        [Authorize(Policy = PolicyConstants.RequireTeamLeader)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AssignTask(Guid id, [FromBody] AssignTaskRequest request)
         {
@@ -40,6 +45,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpPut("{id:guid}/status")]
+        [Authorize(Policy = PolicyConstants.RequireWorkContributor)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateTaskStatus(Guid id, [FromBody] UpdateTaskStatusRequest request)
         {
@@ -48,6 +54,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpPut("{id:guid}/hours")]
+        [Authorize(Policy = PolicyConstants.RequireWorkContributor)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateTaskHours(Guid id, [FromBody] UpdateTaskHoursRequest request)
         {
@@ -56,6 +63,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpPost("{id:guid}/attachment")]
+        [Authorize(Policy = PolicyConstants.RequireWorkContributor)]
         [ProducesResponseType(typeof(UploadAttachmentResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddAttachment(Guid id, IFormFile file)
@@ -73,6 +81,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpGet("{id:guid}/attachment")]
+        [Authorize(Policy = PolicyConstants.RequireAnyUser)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DownloadAttachment(Guid id)
@@ -82,6 +91,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = PolicyConstants.RequireTeamLeader)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
@@ -90,6 +100,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize(Policy = PolicyConstants.RequireAnyUser)]
         [ProducesResponseType(typeof(ProjectTaskDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTaskById(Guid id)
@@ -99,6 +110,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpGet("project/{projectId:guid}")]
+        [Authorize(Policy = PolicyConstants.RequireAnyUser)]
         [ProducesResponseType(typeof(List<ProjectTaskDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTasksByProjectId(Guid projectId)
         {
@@ -107,6 +119,7 @@ namespace Worknest.Api.Controllers
         }
 
         [HttpGet("employee/{employeeId:guid}")]
+        [Authorize(Policy = PolicyConstants.RequireAnyUser)]
         [ProducesResponseType(typeof(List<ProjectTaskDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTasksAssignedToEmployee(Guid employeeId)
         {
@@ -114,6 +127,7 @@ namespace Worknest.Api.Controllers
                 .Match(Ok, Problem);
         }
     }
+
 
     public record AssignTaskRequest(Guid? AssignedToEmployeeId);
     public record UpdateTaskStatusRequest(TaskStatus Status);

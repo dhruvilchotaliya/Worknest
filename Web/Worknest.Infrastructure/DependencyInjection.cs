@@ -27,11 +27,28 @@ namespace Worknest.Infrastructure
             services.AddScoped<Worknest.Application.Repositories.IProjectTaskRepository, Worknest.Infrastructure.Repositories.ProjectTaskRepository>();
             services.AddScoped<Worknest.Application.Services.IUnitOfWork, Worknest.Infrastructure.Services.UnitOfWorkService>();
 
+            // Register Microsoft Graph service for B2B guest management
+            services.Configure<GraphSettings>(configuration.GetSection(GraphSettings.SectionName));
+            services.AddSingleton<Worknest.Application.Services.IGraphService, Worknest.Infrastructure.Services.GraphService>();
+
             // Register MediatR handlers inside Infrastructure
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(System.Reflection.Assembly.GetExecutingAssembly()));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(configuration.GetSection(SettingConstants.WebApiAppRegistration));
+
+            services.AddAuthentication()
+                .AddJwtBearer("MultiTenant", options =>
+                {
+                    options.Authority = "https://login.microsoftonline.com/common/v2.0";
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidAudience = configuration["WebApi:ClientId"],
+                        ValidateAudience = true,
+                        ValidateLifetime = true
+                    };
+                });
 
             // DEBUG: Add event handlers via PostConfigure to chain with MI Web's handlers
             services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -72,6 +89,7 @@ namespace Worknest.Infrastructure
                 options.Events = existingEvents;
             });
 
+
             return services;
         }
 
@@ -106,7 +124,7 @@ namespace Worknest.Infrastructure
 
                 options.AddPolicy(PolicyConstants.RequireWorkContributor, policy =>
                 {
-                    policy.RequireRole(
+                    policy.RequireRole( 
                         RoleConstants.Admin,
                         RoleConstants.ProjectManager,
                         RoleConstants.TeamLeader,

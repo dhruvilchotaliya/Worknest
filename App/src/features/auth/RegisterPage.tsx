@@ -1,8 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Box, Button as MuiButton, CircularProgress } from "@mui/material";
-import { createTheme, ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
-import { loginRequest } from "../../authConfig";
 import heroImage from "../../assets/login_hero.png";
 import Avatar from "../../components/common/display/Avatar";
 import { Card, CardBody, CardHeader } from "../../components/common/display/Card";
@@ -11,41 +9,15 @@ import TextInput from "../../components/common/inputs/TextInput";
 import SelectInput from "../../components/common/inputs/SelectInput";
 import DateInput from "../../components/common/inputs/DateInput";
 import NumberInput from "../../components/common/inputs/NumberInput";
-
-const lightTheme = createTheme({
-	palette: {
-		mode: "light",
-		primary: {
-			main: "#2563eb",
-		},
-	},
-});
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://localhost:7097";
-
-const POSITION_OPTIONS = [
-	{ label: "Tech Lead", value: 0 },
-	{ label: "Developer", value: 1 },
-	{ label: "HR", value: 2 },
-	{ label: "Project Manager", value: 3 },
-	{ label: "Program Manager", value: 4 },
-	{ label: "BDE", value: 5 },
-	{ label: "QA", value: 6 },
-	{ label: "Designer", value: 7 },
-];
-
-const WORK_MODEL_OPTIONS = [
-	{ label: "Remote", value: 0 },
-	{ label: "Hybrid", value: 1 },
-	{ label: "On-site", value: 2 },
-];
+import { useEmployee } from "../../hooks/useEmployee";
+import { POSITION_OPTIONS, WORK_MODEL_OPTIONS } from "../../models/core/Employee";
 
 const RegisterPage = () => {
-	const { instance, accounts } = useMsal();
+	const { accounts } = useMsal();
 	const isAuthenticated = useIsAuthenticated();
 	const navigate = useNavigate();
+	const { onboard } = useEmployee();
 
-	// Form State
 	const [surname, setSurname] = useState("");
 	const [position, setPosition] = useState<string>("");
 	const [experience, setExperience] = useState<number | undefined>(undefined);
@@ -54,19 +26,15 @@ const RegisterPage = () => {
 	const [bio, setBio] = useState("");
 	const [workModel, setWorkModel] = useState<string>("");
 
-	// Submission state
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 
-	// Redirect if not authenticated at all and force light theme
 	useEffect(() => {
-		document.documentElement.classList.remove("dark");
 		if (!isAuthenticated) {
 			navigate("/auth/login", { replace: true });
 		}
 	}, [isAuthenticated, navigate]);
 
-	// Extract prefilled info
 	const currentAccount = accounts[0];
 	const name = currentAccount?.name ?? "";
 	const email = currentAccount?.username ?? "";
@@ -94,48 +62,38 @@ const RegisterPage = () => {
 		setErrorMessage("");
 
 		try {
-			// Get authorization token from MSAL
-			const tokenResponse = await instance.acquireTokenSilent({
-				...loginRequest,
-				account: currentAccount,
+			const result = await onboard({
+				surname: surname.trim(),
+				position: Number(position),
+				teamId: null,
+				experienceInYears: experience !== undefined ? Number(experience) : null,
+				phoneNumber: phone.trim() || null,
+				dateOfBirth: dateOfBirth || null,
+				bio: bio.trim() || null,
+				workModel: workModel !== "" ? Number(workModel) : null,
 			});
 
-			const response = await fetch(`${API_BASE_URL}/api/employee/register`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${tokenResponse.accessToken}`,
-				},
-				body: JSON.stringify({
-					surname: surname.trim(),
-					position: Number(position),
-					teamId: null,
-					experienceInYears: experience !== undefined ? Number(experience) : null,
-					phoneNumber: phone.trim() || null,
-					dateOfBirth: dateOfBirth || null,
-					bio: bio.trim() || null,
-					workModel: workModel !== "" ? Number(workModel) : null,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(errorText || `Registration failed with status ${response.status}`);
+			if (result.requiresRedemption && result.inviteRedeemUrl) {
+				window.location.href = result.inviteRedeemUrl;
+				return;
 			}
 
 			// Successfully registered, navigate to App Dashboard
 			navigate("/app/home", { replace: true });
 		} catch (error: any) {
 			console.error("Registration error:", error);
-			setErrorMessage(error.message || "An unexpected error occurred during registration. Please try again.");
+			setErrorMessage(
+				error.problemDetails?.detail ||
+				error.message ||
+				"An unexpected error occurred during registration. Please try again."
+			);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	return (
-		<MuiThemeProvider theme={lightTheme}>
-			<Box className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+		<Box className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white overflow-hidden">
 			<section className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
 				{/* Left Hero Section (identical mesh glow theme) */}
 				<div className="relative flex min-h-[360px] flex-col justify-between overflow-hidden bg-slate-950 p-8 lg:min-h-screen lg:p-16">
@@ -314,9 +272,23 @@ const RegisterPage = () => {
 										variant="contained"
 										fullWidth
 										disabled={isSubmitting}
-										className="flex h-[48px] items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 font-semibold text-white shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:-translate-y-0.5 disabled:bg-slate-300"
+										className="flex h-[48px] items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 font-semibold text-white shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:-translate-y-0.5"
+										sx={{
+											"&.Mui-disabled": {
+												background: "linear-gradient(to right, #4f46e5, #7c3aed)",
+												color: "white !important",
+												opacity: 0.7,
+											}
+										}}
 									>
-										{isSubmitting ? "Submitting Registration..." : "Submit Registration"}
+										{isSubmitting ? (
+											<div className="flex items-center gap-2 text-white">
+												<CircularProgress size={20} color="inherit" />
+												<span className="text-white">Registering...</span>
+											</div>
+										) : (
+											<span className="text-white">Submit Registration</span>
+										)}
 									</MuiButton>
 								</div>
 							</form>
@@ -324,8 +296,7 @@ const RegisterPage = () => {
 					</Card>
 				</div>
 			</section>
-			</Box>
-		</MuiThemeProvider>
+		</Box>
 	);
 };
 

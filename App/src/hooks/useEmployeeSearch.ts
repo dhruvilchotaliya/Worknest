@@ -4,7 +4,7 @@ import { EmployeePosition } from '../models/core/Employee';
 
 const mockEmployees: Employee[] = [
   { id: "e1", name: "Alice", surname: "Smith", email: "alice@example.com", joinedAt: new Date().toISOString(), createdAt: new Date().toISOString(), position: EmployeePosition.Developer },
-  { id: "e2", name: "Bob", surname: "Jones", email: "bob@example.com", joinedAt: new Date().toISOString(), createdAt: new Date().toISOString(), position: EmployeePosition.Manager },
+  { id: "e2", name: "Bob", surname: "Jones", email: "bob@example.com", joinedAt: new Date().toISOString(), createdAt: new Date().toISOString(), position: EmployeePosition.ProjectManager },
 ];
 
 export const useEmployeeSearch = (maxResults: number) => {

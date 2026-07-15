@@ -1,8 +1,10 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web;
 using Worknest.Api.Controllers.Base;
+using Worknest.Application.Common.Constants;
 using Worknest.Application.Features.Employee;
 using Worknest.Application.Features.Employee.Commands;
 using Worknest.Application.Features.Employee.Queries;
@@ -15,27 +17,8 @@ namespace Worknest.Api.Controllers;
 
 public class EmployeeController : BaseController
 {
-    [HttpPost("register")]
-    [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Register([FromBody] RegisterEmployeeRequest request)
-    {
-        var command = new RegisterMyProfileCommand(
-            request.Surname,
-            request.Position,
-            request.TeamId,
-            request.ExperienceInYears,
-            request.PhoneNumber,
-            request.DateOfBirth,
-            request.Bio,
-            request.WorkModel
-        );
-
-        return (await Mediator.Send(command))
-            .Match(result => Ok(result), Problem);
-    }
-
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = PolicyConstants.RequireAnyUser)]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -46,6 +29,7 @@ public class EmployeeController : BaseController
     }
 
     [HttpGet]
+    [Authorize(Policy = PolicyConstants.RequireAnyUser)]
     [ProducesResponseType(typeof(Worknest.Application.Common.PaginatedResponse<EmployeeDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -56,6 +40,7 @@ public class EmployeeController : BaseController
     }
 
     [HttpPost]
+    [Authorize(Policy = PolicyConstants.RequireAdmin)]
     public async Task<IActionResult> Create([FromBody] CreateEmployeeCommand command)
     {
         return (await Mediator.Send(command))
@@ -63,6 +48,7 @@ public class EmployeeController : BaseController
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = PolicyConstants.RequireAnyUser)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEmployeeCommand command)
     {
         if (id != command.Id)
@@ -75,19 +61,27 @@ public class EmployeeController : BaseController
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = PolicyConstants.RequireAdmin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         return (await Mediator.Send(new DeleteEmployeeCommand(id)))
             .Match(_ => NoContent(), Problem);
     }
+
+    [HttpPut("{id:guid}/role")]
+    [Authorize(Policy = PolicyConstants.RequireAdmin)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ChangeRole(Guid id, [FromBody] ChangeRoleRequest request)
+    {
+        var command = new ChangeEmployeeRoleCommand(id, request.NewRoleName);
+        return (await Mediator.Send(command))
+            .Match(_ => Ok(), Problem);
+    }
 }
 
-public record RegisterEmployeeRequest(
-    string Surname,
-    EmployeePosition Position,
-    Guid? TeamId,
-    decimal? ExperienceInYears,
-    string? PhoneNumber,
-    DateTime? DateOfBirth,
-    string? Bio,
-    WorkModel? WorkModel);
+
+public record ChangeRoleRequest(
+    string NewRoleName);
+

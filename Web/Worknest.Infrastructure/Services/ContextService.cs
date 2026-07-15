@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Worknest.Application.Services;
+using Worknest.Application.Common.Constants;
 
 namespace Worknest.Infrastructure.Services
 {
@@ -50,12 +51,15 @@ namespace Worknest.Infrastructure.Services
         }
 
         public string? Email => User?.FindFirst("preferred_username")?.Value 
+            ?? User?.FindFirst("email")?.Value
+            ?? User?.FindFirst("unique_name")?.Value
             ?? User?.FindFirst(ClaimTypes.Email)?.Value 
             ?? User?.FindFirst(ClaimTypes.Upn)?.Value;
 
         public string? Role => User?.FindFirst(ClaimTypes.Role)?.Value 
             ?? User?.FindFirst("roles")?.Value 
-            ?? User?.FindFirst("role")?.Value;
+            ?? User?.FindFirst("role")?.Value
+            ?? (IsAuthenticated ? RoleConstants.User : null);
 
         public IEnumerable<string> Roles
         {
@@ -63,12 +67,19 @@ namespace Worknest.Infrastructure.Services
             {
                 if (User == null) yield break;
 
+                bool hasAnyRole = false;
                 foreach (var claim in User.Claims)
                 {
                     if (claim.Type == ClaimTypes.Role || claim.Type == "roles" || claim.Type == "role")
                     {
+                        hasAnyRole = true;
                         yield return claim.Value;
                     }
+                }
+
+                if (!hasAnyRole && IsAuthenticated)
+                {
+                    yield return RoleConstants.User;
                 }
             }
         }

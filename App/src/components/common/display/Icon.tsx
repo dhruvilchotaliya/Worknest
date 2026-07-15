@@ -12,6 +12,7 @@ export type IconProps = {
 	icon: IconType;
 	color?: IconColor;
 	size?: "small" | "medium" | "large" | "inherit";
+	[key: string]: any;
 };
 
 const iconMap = {
@@ -179,26 +180,27 @@ const iconMap = {
 	PauseCircleOutlineIcon: MuiIcons.PauseCircleOutlined
 } as const;
 
-const Icon = (props: IconProps) => {
+const Icon = ({ className, icon, color: propColor, size, ...rest }: IconProps) => {
 
 	const color = useMemo(() => {
-		switch (props.color) {
+		switch (propColor) {
 			case "default":
 				return "action";
 			default:
-				return props.color;
+				return propColor;
 		}
-	}, [props.color]);
+	}, [propColor]);
 
-	const Component = iconMap[props.icon];
+	const Component = iconMap[icon];
 	if (!Component)
-		throw new Error(`Icon type ${props.icon} not implemented`);
+		throw new Error(`Icon type ${icon} not implemented`);
 
 	return (
 		<Component
-			className={props.className}
+			className={className}
 			color={color}
-			fontSize={props.size}
+			fontSize={size}
+			{...rest}
 		/>
 	);
 };
